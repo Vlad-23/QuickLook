@@ -14,16 +14,18 @@ jobs:
         uses: microsoft/setup-msbuild@v2
 
       - name: Create Missing Version File
-        # We are using a standard 1.0.0.0 format to stop the CS7034 error
         run: |
           echo 'using System.Reflection; [assembly: AssemblyVersion("1.0.0.0")] [assembly: AssemblyFileVersion("1.0.0.0")] [assembly: AssemblyInformationalVersion("1.0.0.0")]' > GitVersion.cs
+
+      - name: Force WebView2 Version
+        # This command forces the specific version that HtmlViewer wants onto the main project
+        run: nuget install Microsoft.Web.WebView2 -Version 1.0.3650.58 -OutputDirectory packages
 
       - name: Restore OCR Plugin
         run: msbuild -t:restore "QuickLook.Plugin/QuickLook.Plugin.ImageViewerOCR/QuickLook.Plugin.ImageViewer.csproj"
 
       - name: Build OCR Plugin
-        # We target the .csproj specifically, NOT the .sln file
-        run: msbuild "QuickLook.Plugin/QuickLook.Plugin.ImageViewerOCR/QuickLook.Plugin.ImageViewer.csproj" /p:Configuration=Release /p:Platform="Any CPU" /p:RestorePackages=false /p:PreBuildEvent= /p:AutoGenerateBindingRedirects=true
+        run: msbuild "QuickLook.Plugin/QuickLook.Plugin.ImageViewerOCR/QuickLook.Plugin.ImageViewer.csproj" /p:Configuration=Release /p:Platform="Any CPU" /p:RestorePackages=false /p:PreBuildEvent= /p:AutoGenerateBindingRedirects=true /p:ReferencePath="${{ github.workspace }}\packages\Microsoft.Web.WebView2.1.0.3650.58\lib\net462"
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
