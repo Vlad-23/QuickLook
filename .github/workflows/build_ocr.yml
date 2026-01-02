@@ -14,7 +14,6 @@ jobs:
         uses: microsoft/setup-msbuild@v2
 
       - name: Create Missing Version File
-        # This creates the empty GitVersion.cs file at the root so the compiler is happy
         run: |
           echo 'using System.Reflection; [assembly: AssemblyVersion("1.0.0.0")] [assembly: AssemblyFileVersion("1.0.0.0")]' > GitVersion.cs
 
@@ -22,7 +21,8 @@ jobs:
         run: msbuild -t:restore "QuickLook.Plugin/QuickLook.Plugin.ImageViewerOCR/QuickLook.Plugin.ImageViewer.csproj"
 
       - name: Build OCR Plugin
-        run: msbuild "QuickLook.Plugin/QuickLook.Plugin.ImageViewerOCR/QuickLook.Plugin.ImageViewer.csproj" /p:Configuration=Release /p:Platform="Any CPU" /p:RestorePackages=false /p:PreBuildEvent=
+        # We added /p:AutoGenerateBindingRedirects=true to fix the WebView2 version conflict
+        run: msbuild "QuickLook.Plugin/QuickLook.Plugin.ImageViewerOCR/QuickLook.Plugin.ImageViewer.csproj" /p:Configuration=Release /p:Platform="Any CPU" /p:RestorePackages=false /p:PreBuildEvent= /p:AutoGenerateBindingRedirects=true
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
