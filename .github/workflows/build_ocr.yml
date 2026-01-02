@@ -1,5 +1,5 @@
 name: Build OCR Plugin Custom
-on: [push, workflow_dispatch] # workflow_dispatch lets you run it manually
+on: [push, workflow_dispatch]
 
 jobs:
   build:
@@ -17,7 +17,8 @@ jobs:
         run: msbuild -t:restore "QuickLook.Plugin/QuickLook.Plugin.ImageViewerOCR/QuickLook.Plugin.ImageViewer.csproj"
 
       - name: Build OCR Plugin
-        run: msbuild "QuickLook.Plugin/QuickLook.Plugin.ImageViewerOCR/QuickLook.Plugin.ImageViewer.csproj" /p:Configuration=Release /p:Platform="Any CPU"
+        # We added /p:PreBuildEvent= here to kill that failing versioning script
+        run: msbuild "QuickLook.Plugin/QuickLook.Plugin.ImageViewerOCR/QuickLook.Plugin.ImageViewer.csproj" /p:Configuration=Release /p:Platform="Any CPU" /p:RestorePackages=false /p:PreBuildEvent=
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
