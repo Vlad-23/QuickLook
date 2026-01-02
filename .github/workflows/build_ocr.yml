@@ -14,7 +14,6 @@ jobs:
         uses: microsoft/setup-msbuild@v2
 
       - name: Create Version File
-        # Needed because the project expects a GitVersion.cs file that isn't in the repo
         run: |
           echo 'using System.Reflection; [assembly: AssemblyVersion("1.0.0.0")] [assembly: AssemblyFileVersion("1.0.0.0")] [assembly: AssemblyInformationalVersion("1.0.0.0")]' > GitVersion.cs
 
@@ -22,7 +21,8 @@ jobs:
         run: msbuild -t:restore "QuickLook.Plugin/QuickLook.Plugin.ImageViewerOCR/QuickLook.Plugin.ImageViewer.csproj"
 
       - name: Build
-        run: msbuild "QuickLook.Plugin/QuickLook.Plugin.ImageViewerOCR/QuickLook.Plugin.ImageViewer.csproj" /p:Configuration=Release /p:Platform="Any CPU"
+        # This shuts down pre/post build scripts for ALL sub-projects
+        run: msbuild "QuickLook.Plugin/QuickLook.Plugin.ImageViewerOCR/QuickLook.Plugin.ImageViewer.csproj" /p:Configuration=Release /p:Platform="Any CPU" /p:PreBuildEvent="" /p:PostBuildEvent=""
 
       - name: Upload Result
         uses: actions/upload-artifact@v4
