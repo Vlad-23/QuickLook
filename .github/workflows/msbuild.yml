@@ -1,4 +1,4 @@
-name: Build OCR Plugin Custom
+name: Build OCR Plugin Final Attempt
 on: [push, workflow_dispatch]
 
 jobs:
@@ -13,19 +13,22 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
-      - name: Create Missing Version File
+      - name: Create Version File
         run: |
           echo 'using System.Reflection; [assembly: AssemblyVersion("1.0.0.0")] [assembly: AssemblyFileVersion("1.0.0.0")] [assembly: AssemblyInformationalVersion("1.0.0.0")]' > GitVersion.cs
 
-      - name: Restore OCR Plugin
-        run: msbuild -t:restore "QuickLook.Plugin/QuickLook.Plugin.ImageViewerOCR/QuickLook.Plugin.ImageViewer.csproj"
+      - name: Build Dependencies
+        # We build the Common project first so the DLL exists
+        run: msbuild "QuickLook.Common/QuickLook.Common.csproj" /p:Configuration=Release /p:Platform="Any CPU"
 
       - name: Build OCR Plugin
-        # We add /p:BuildProjectReferences=false to stop it from pulling in the conflicting HtmlViewer
-        run: msbuild "QuickLook.Plugin/QuickLook.Plugin.ImageViewerOCR/QuickLook.Plugin.ImageViewer.csproj" /p:Configuration=Release /p:Platform="Any CPU" /p:RestorePackages=false /p:PreBuildEvent= /p:AutoGenerateBindingRedirects=true /p:BuildProjectReferences=false
+        # We build the OCR plugin, but we skip building 'HtmlViewer' to avoid the version conflict
+        run: msbuild "QuickLook.Plugin/QuickLook.Plugin.ImageViewerOCR/QuickLook.Plugin.ImageViewer.csproj" /p:Configuration=Release /p:Platform="Any CPU" /p:BuildProjectReferences=false /p:PreBuildEvent=
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: OCR-Plugin-DLL
-          path: QuickLook.Plugin/QuickLook.Plugin.ImageViewerOCR/bin/Release/
+          path: |
+            QuickLook.Plugin/QuickLook.Plugin.ImageViewerOCR/bin/Release/
+            QuickLook.Common/bin/Release/
