@@ -1,3 +1,6 @@
 [submodule "QuickLook.Common"]
 	path = QuickLook.Common
 	url = https://github.com/QL-Win/QuickLook.Common.git
+[submodule "QuickLook.Plugin/QuickLook.Plugin.ImageViewerOCR"]
+	path = QuickLook.Plugin/QuickLook.Plugin.ImageViewerOCR
+	url = https://github.com/Vlad-23/QuickLook.Plugin.ImageViewer-with-LiveText
