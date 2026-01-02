@@ -17,12 +17,15 @@ jobs:
         run: |
           echo 'using System.Reflection; [assembly: AssemblyVersion("1.0.0.0")] [assembly: AssemblyFileVersion("1.0.0.0")] [assembly: AssemblyInformationalVersion("1.0.0.0")]' > GitVersion.cs
 
-      - name: Restore Packages
-        run: msbuild -t:restore "QuickLook.Plugin/QuickLook.Plugin.ImageViewerOCR/QuickLook.Plugin.ImageViewer.csproj"
+      - name: Force Clean and Restore
+        # This deletes old build artifacts and forces a fresh check of the version you typed
+        run: |
+          msbuild -t:Clean "QuickLook.Plugin/QuickLook.Plugin.ImageViewerOCR/QuickLook.Plugin.ImageViewer.csproj"
+          nuget restore "QuickLook.Plugin/QuickLook.Plugin.ImageViewerOCR/QuickLook.Plugin.ImageViewer.csproj" -NoCache -Force
 
       - name: Build
-        # We add /p:PreBuildEvent= to skip that broken PowerShell script
-        run: msbuild "QuickLook.Plugin/QuickLook.Plugin.ImageViewerOCR/QuickLook.Plugin.ImageViewer.csproj" /p:Configuration=Release /p:Platform="Any CPU" /p:PreBuildEvent=
+        # We keep the flags to skip the broken scripts
+        run: msbuild "QuickLook.Plugin/QuickLook.Plugin.ImageViewerOCR/QuickLook.Plugin.ImageViewer.csproj" /p:Configuration=Release /p:Platform="Any CPU" /p:PreBuildEvent="" /p:PostBuildEvent=""
 
       - name: Upload Result
         uses: actions/upload-artifact@v4
