@@ -1,4 +1,4 @@
-name: Build OCR Plugin Custom
+name: Build OCR Plugin
 on: [push, workflow_dispatch]
 
 jobs:
@@ -13,19 +13,19 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
-      - name: Create Missing Version File
+      - name: Create Version File
+        # Needed because the project expects a GitVersion.cs file that isn't in the repo
         run: |
-          echo 'using System.Reflection; [assembly: AssemblyVersion("1.0.0.0")] [assembly: AssemblyFileVersion("1.0.0.0")]' > GitVersion.cs
+          echo 'using System.Reflection; [assembly: AssemblyVersion("1.0.0.0")] [assembly: AssemblyFileVersion("1.0.0.0")] [assembly: AssemblyInformationalVersion("1.0.0.0")]' > GitVersion.cs
 
-      - name: Restore OCR Plugin
+      - name: Restore Packages
         run: msbuild -t:restore "QuickLook.Plugin/QuickLook.Plugin.ImageViewerOCR/QuickLook.Plugin.ImageViewer.csproj"
 
-      - name: Build OCR Plugin
-        # We added /p:AutoGenerateBindingRedirects=true to fix the WebView2 version conflict
-        run: msbuild "QuickLook.Plugin/QuickLook.Plugin.ImageViewerOCR/QuickLook.Plugin.ImageViewer.csproj" /p:Configuration=Release /p:Platform="Any CPU" /p:RestorePackages=false /p:PreBuildEvent= /p:AutoGenerateBindingRedirects=true
+      - name: Build
+        run: msbuild "QuickLook.Plugin/QuickLook.Plugin.ImageViewerOCR/QuickLook.Plugin.ImageViewer.csproj" /p:Configuration=Release /p:Platform="Any CPU"
 
-      - name: Upload Artifact
+      - name: Upload Result
         uses: actions/upload-artifact@v4
         with:
-          name: OCR-Plugin-DLL
+          name: OCR-Plugin
           path: QuickLook.Plugin/QuickLook.Plugin.ImageViewerOCR/bin/Release/
