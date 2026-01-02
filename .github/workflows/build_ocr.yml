@@ -13,11 +13,15 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
+      - name: Create Missing Version File
+        # This creates the empty GitVersion.cs file at the root so the compiler is happy
+        run: |
+          echo 'using System.Reflection; [assembly: AssemblyVersion("1.0.0.0")] [assembly: AssemblyFileVersion("1.0.0.0")]' > GitVersion.cs
+
       - name: Restore OCR Plugin
         run: msbuild -t:restore "QuickLook.Plugin/QuickLook.Plugin.ImageViewerOCR/QuickLook.Plugin.ImageViewer.csproj"
 
       - name: Build OCR Plugin
-        # We added /p:PreBuildEvent= here to kill that failing versioning script
         run: msbuild "QuickLook.Plugin/QuickLook.Plugin.ImageViewerOCR/QuickLook.Plugin.ImageViewer.csproj" /p:Configuration=Release /p:Platform="Any CPU" /p:RestorePackages=false /p:PreBuildEvent=
 
       - name: Upload Artifact
