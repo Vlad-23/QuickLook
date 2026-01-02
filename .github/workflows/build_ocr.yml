@@ -1,0 +1,26 @@
+name: Build OCR Plugin Custom
+on: [push, workflow_dispatch] # workflow_dispatch lets you run it manually
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive 
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Restore OCR Plugin
+        run: msbuild -t:restore "QuickLook.Plugin/QuickLook.Plugin.ImageViewerOCR/QuickLook.Plugin.ImageViewer.csproj"
+
+      - name: Build OCR Plugin
+        run: msbuild "QuickLook.Plugin/QuickLook.Plugin.ImageViewerOCR/QuickLook.Plugin.ImageViewer.csproj" /p:Configuration=Release /p:Platform="Any CPU"
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: OCR-Plugin-DLL
+          path: QuickLook.Plugin/QuickLook.Plugin.ImageViewerOCR/bin/Release/
